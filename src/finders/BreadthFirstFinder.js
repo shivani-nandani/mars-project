@@ -1,4 +1,3 @@
-var Util = require('../core/Util');
 var DiagonalMovement = require('../core/DiagonalMovement');
 
 /**
@@ -11,6 +10,16 @@ var DiagonalMovement = require('../core/DiagonalMovement');
  *     block corners. Deprecated, use diagonalMovement instead.
  * @param {DiagonalMovement} opt.diagonalMovement Allowed diagonal movement.
  */
+
+ function backtrace(node) {
+     var path = [[node.x, node.y]];
+     while (node.parent) {
+         node = node.parent;
+         path.push([node.x, node.y]);
+     }
+     return path.reverse();
+ }
+
 function BreadthFirstFinder(opt) {
     opt = opt || {};
     this.allowDiagonal = opt.allowDiagonal;
@@ -35,45 +44,38 @@ function BreadthFirstFinder(opt) {
  * @return {Array<Array<number>>} The path, including both start and
  *     end positions.
  */
-BreadthFirstFinder.prototype.findPath = function(startX, startY, endX, endY, grid) {
-    var openList = [],
-        diagonalMovement = this.diagonalMovement,
-        startNode = grid.getNodeAt(startX, startY),
-        endNode = grid.getNodeAt(endX, endY),
-        neighbors, neighbor, node, i, l;
 
-    // push the start pos into the queue
-    openList.push(startNode);
-    startNode.opened = true;
+ BreadthFirstFinder.prototype.findPath = function(startX, startY, endX, endY, grid) {
+    var queue = [],
+        diagonalMovement = this.diagonalMovement;
+        startNode = grid.getNodeAt(startX, startY);
+        endNode = grid.getNodeAt(endX, endY);
+        neighbors, node, i, current;
 
-    // while the queue is not empty
-    while (openList.length) {
-        // take the front node from the queue
-        node = openList.shift();
-        node.closed = true;
+    queue.push(startNode);
+    startNode.visited = true;
 
-        // reached the end position
-        if (node === endNode) {
-            return Util.backtrace(endNode);
+    while (queue.length) {
+        node = queue.shift();
+        node.visited = true;
+
+        if(node === endNode) {
+            return backtrace(endNode);
         }
 
         neighbors = grid.getNeighbors(node, diagonalMovement);
-        for (i = 0, l = neighbors.length; i < l; ++i) {
-            neighbor = neighbors[i];
+        for(i = 0; i < neighbors.length; i++) {
+            current = neighbors[i];
 
-            // skip this neighbor if it has been inspected before
-            if (neighbor.closed || neighbor.opened) {
+            if (current.visited) {
                 continue;
             }
 
-            openList.push(neighbor);
-            neighbor.opened = true;
-            neighbor.parent = node;
+            queue.push(current);
+            current.visited = true;
+            current.parent = node;
         }
     }
-    
-    // fail to find the path
-    return [];
-};
+}
 
 module.exports = BreadthFirstFinder;
