@@ -1,4 +1,3 @@
-var Util = require('../core/Util');
 var DiagonalMovement = require('../core/DiagonalMovement');
 
 /**
@@ -21,7 +20,7 @@ var DiagonalMovement = require('../core/DiagonalMovement');
      return path.reverse();
  }
 
-function BiBreadthFirstFinder(opt) {
+function DijkstraFinder(opt) {
     opt = opt || {};
     this.allowDiagonal = opt.allowDiagonal;
     this.dontCrossCorners = opt.dontCrossCorners;
@@ -46,49 +45,40 @@ function BiBreadthFirstFinder(opt) {
  *     end positions.
  */
 
- BiBreadthFirstFinder.prototype.findPath = function(startX, startY, endX, endY, grid) {
-    var startQueue = [],
-        endQueue = [],
-        diagonalMovement = this.diagonalMovement;
-        startNode = grid.getNodeAt(startX, startY);
-        endNode = grid.getNodeAt(endX, endY);
-        neighbors_s, neighbors_e, node_s, node_e, i, current_s, current_e;
+ DijkstraFinder.prototype.findPath = function(startX, startY, endX, endY, grid) {
+   var list = [],
+       diagonalMovement = this.diagonalMovement;
+       startNode = grid.getNodeAt(startX, startY);
+       endNode = grid.getNodeAt(endX, endY);
+       neighbors, node, i, current, weight, min = 0;
 
-    startQueue.push(startNode);
-    startNode.visited = true;
+   list.push(startNode);
+   startNode.visited = true;
 
-    endQueue.push(endNode);
-    endNode.visited = true;
+   while (queue.length) {
+       node = queue.pop();
+       node.visited = true;
 
-    while (startQueue.length && endQueue.length) {
-        node_s = startQueue.shift();
-        node_s.visited = true;
+       if(node === endNode) {
+           return backtrace(endNode);
+       }
 
-        if(node_s === node_e) {
-            backtrace(node_e);
-            backtrace(node_s.parent);
-            break;
-        }
+       neighbors = grid.getNeighbors(node, diagonalMovement);
+       for(i = 0; i < neighbors.length; i++) {
+           current = neighbors[i];
 
-        neighbors_s = grid.getNeighbors(node_s, diagonalMovement);
-        neighbors_e = grid.getNeighbors(node_e, diagonalMovement);
-        for(i = 0, j = 0; i < neighbors_s.length, j < neighbors_e.length; i++, j++) {
-            current_s = neighbors_s[i];
-            current_e = neighbors_e[j];
-
-            if (!current_s.visited) {
-              startQueue.push(current_s);
-              current_s.visited = true;
-              current_s.parent = node_s;
+           if (current.visited) {
+               continue;
+           }
+           weight = ((endX - current.x)*(endX - current.x) +((endY - current.x)*(endY - current.x)
+           if(weight <= min) {
+              list.push(current);
             }
+           current.visited = true;
+           current.parent = node;
 
-            if (!current_e.visited) {
-              endQueue.push(current_e);
-              current_e.visited = true;
-              current_e.parent = node_e;
-            }
-        }
-    }
+       }
+   }
 }
 
-module.exports = BreadthFirstFinder;
+module.exports = DijkstraFinder;

@@ -7,5 +7,4 @@ module.exports = {
     'BreadthFirstFinder'        : require('./finders/BreadthFirstFinder'),
     'DijkstraFinder'            : require('./finders/DijkstraFinder'),
     'BiBreadthFirstFinder'      : require('./finders/BiBreadthFirstFinder'),
-    'BiDijkstraFinder'          : require('./finders/BiDijkstraFinder'),
 };

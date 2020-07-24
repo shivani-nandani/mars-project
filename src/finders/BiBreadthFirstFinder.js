@@ -1,4 +1,3 @@
-var Util = require('../core/Util');
 var DiagonalMovement = require('../core/DiagonalMovement');
 
 /**
